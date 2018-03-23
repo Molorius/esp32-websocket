@@ -4,9 +4,10 @@ By Blake Felt - blake.w.felt@gmail.com
 ESP32 WebSocket
 ==================
 
-A component for WebSockets on ESP-IDF using lwip netconn. The example can be made with `make` and uploaded with `make flash`.
+A component for WebSockets on ESP-IDF using lwip netconn. 
 
-To add to a project, type `git submodule add https://github.com/Molorius/esp32-websocket.git component/websocket` 
+To add to a project, type:
+`git submodule add https://github.com/Molorius/esp32-websocket.git components/websocket` 
 into the base directory of your project.
 
 Some configuration options for the Server can be found in menuconfig in:
@@ -94,7 +95,7 @@ Adds a client to the WebSocket Server handler and performs the necessary handsha
 *Returns*
   * -2: not enough information in `msg` to perform handshake.
   * -1: server full, or connection issue.
-  * >= 0: connection number
+  * 0 or greater: connection number
 
 int ws_server_len_url(char* url)
 --------------------------------
@@ -110,7 +111,8 @@ Returns the number of clients connected to the specified URL.
 int ws_server_len_all()
 -----------------------
 
-Returns the number of connected clients.
+*Returns* 
+  * The number of connected clients.
 
 int ws_server_remove_client(int num)
 ------------------------------------
@@ -133,7 +135,7 @@ Removes all clients connect to the desired URL.
   * `url`: the NULL-terminated URL.
 
 *Returns*
-  The number of clients that were disconnected.
+  * The number of clients that were disconnected.
 
 int ws_server_remove_all()
 --------------------------

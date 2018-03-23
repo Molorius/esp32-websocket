@@ -1,1 +1,2 @@
-COMPONENT_PRIV_INCLUDEDIRS := private_include
+# websocket component makefile
+# all files are in default positions
