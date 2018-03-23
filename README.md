@@ -19,7 +19,7 @@ The code only allows one WebSocket server at a time, but this merely handles all
 Any suggestions or fixes are gladly appreciated.
 
 Table of Contents
------------------
+=================
 * [Enumerations](#enumerations)
   * [WEBSOCKET_TYPE_t](#enum-websocket_type_t)
 * [Functions](#functions)
@@ -39,16 +39,17 @@ Table of Contents
   * [ws_server_send_text_all_from_callback](#int-ws_server_send_text_all_from_callbackchar-msguint64_t-len)
 
 Enumerations
-------------
+============
 
-### `enum WEBSOCKET_TYPE_t`
+enum WEBSOCKET_TYPE_t
+---------------------
 
 The different types of WebSocket events.
 
 *Values*
   * `WEBSOCKET_CONNECT`: A new client has successfully connected.
   * `WEBSOCKET_DISCONNECT_EXTERNAL`: The other side sent a disconnect message.
-  * `WEBSOCKET_DISCONNECT_INTERNAL`: We sent a disconnect message.
+  * `WEBSOCKET_DISCONNECT_INTERNAL`: The esp32 server sent a disconnect message.
   * `WEBSOCKET_DISCONNECT_ERROR`: Disconnect due to a connection error.
   * `WEBSOCKET_TEXT`: Incoming text.
   * `WEBSOCKET_BIN`: Incoming binary.
@@ -56,9 +57,10 @@ The different types of WebSocket events.
   * `WEBSOCKET_PONG`: The other side successfully replied to our ping.
 
 Functions
----------
+=========
 
-### `int ws_server_start()`
+int ws_server_start()
+---------------------
 
 Starts the WebSocket Server. Use this function before attempting any
 sort of transmission or adding a client.
@@ -67,7 +69,8 @@ sort of transmission or adding a client.
   * 1: successful start
   * 0: server already running
 
-### `int ws_server_stop()`
+int ws_server_stop()
+--------------------
 
 Stops the WebSocket Server. New clients can still be added and
 messages can be sent, but new messages will not be received.
@@ -76,7 +79,8 @@ messages can be sent, but new messages will not be received.
   * 1: successful stop
   * 0: server was not running before
 
-### `ws_server_add_client(struct netconn* conn, char* msg, uint16_t len, char* url, void *callback)`
+ws_server_add_client(struct netconn* conn, char* msg, uint16_t len, char* url, void *callback)
+----------------------------------------------------------------------------------------------
 
 Adds a client to the WebSocket Server handler and performs the necessary handshake.
 
@@ -92,7 +96,8 @@ Adds a client to the WebSocket Server handler and performs the necessary handsha
   * -1: server full, or connection issue.
   * >= 0: connection number
 
-### `int ws_server_len_url(char* url)`
+int ws_server_len_url(char* url)
+--------------------------------
 
 Returns the number of clients connected to the specified URL.
 
@@ -100,13 +105,15 @@ Returns the number of clients connected to the specified URL.
   * `url`: the NULL-terminated string of the desired URL.
 
 *Returns*
-  The number of clients connected to the specified URL.
+  * The number of clients connected to the specified URL.
 
-### `int ws_server_len_all()`
+int ws_server_len_all()
+-----------------------
 
 Returns the number of connected clients.
 
-### `int ws_server_remove_client(int num)`
+int ws_server_remove_client(int num)
+------------------------------------
 
 Removes the desired client.
 
@@ -117,7 +124,8 @@ Removes the desired client.
   * 0: not a valid client number
   * 1: client disconnected
 
-### `int ws_server_remove_clients(char* url)`
+int ws_server_remove_clients(char* url)
+---------------------------------------
 
 Removes all clients connect to the desired URL.
 
@@ -127,14 +135,16 @@ Removes all clients connect to the desired URL.
 *Returns*
   The number of clients that were disconnected.
 
-### `int ws_server_remove_all()`
+int ws_server_remove_all()
+--------------------------
 
 Removes all clients from server.
 
 *Returns*
-  The number of clients that were disconnected.
+  * The number of clients that were disconnected.
 
-### `int ws_server_send_text_client(int num,char* msg,uint64_t len)`
+int ws_server_send_text_client(int num,char* msg,uint64_t len)
+--------------------------------------------------------------
 
 Sends the desired message to the client.
 
@@ -147,7 +157,8 @@ Sends the desired message to the client.
   * 0: message not sent properly
   * 1: message sent
 
-### `int ws_server_send_text_clients(char* url,char* msg,uint64_t len)`
+int ws_server_send_text_clients(char* url,char* msg,uint64_t len)
+-----------------------------------------------------------------
 
 Sends the message to clients connected to the desired URL.
 
@@ -157,9 +168,10 @@ Sends the message to clients connected to the desired URL.
   * `len`: the length of the message.
 
 *Returns*
-  The number of clients that the message was sent to.
+  * The number of clients that the message was sent to.
 
-### `int ws_server_send_text_all(char* msg,uint64_t len)`
+int ws_server_send_text_all(char* msg,uint64_t len)
+---------------------------------------------------
 
 Sends the message to all connected clients.
 
@@ -168,9 +180,10 @@ Sends the message to all connected clients.
   * `len`: the length of the message
 
 *Returns*
-  The number of clients that the message was sent to.
+  * The number of clients that the message was sent to.
 
-### `int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len)`
+int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len)
+----------------------------------------------------------------------------
 
 Sends the desired message to the client. Only use this inside the callback function.
 
@@ -183,7 +196,8 @@ Sends the desired message to the client. Only use this inside the callback funct
   * 0: message not sent properly
   * 1: message sent
 
-### `int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len)`
+int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len)
+-------------------------------------------------------------------------------
 
 Sends the message to clients connected to the desired URL. Only use this inside the callback function.
 
@@ -193,9 +207,10 @@ Sends the message to clients connected to the desired URL. Only use this inside 
   * `len`: the length of the message.
 
 *Returns*
-  The number of clients that the message was sent to.
+  * The number of clients that the message was sent to.
 
-### `int ws_server_send_text_all_from_callback(char* msg,uint64_t len)`
+int ws_server_send_text_all_from_callback(char* msg,uint64_t len)
+-----------------------------------------------------------------
 
 Sends the message to all connected clients. Only use this inside the callback function.
 
@@ -204,4 +219,4 @@ Sends the message to all connected clients. Only use this inside the callback fu
   * `len`: the length of the message
 
 *Returns*
-  The number of clients that the message was sent to.
+  * The number of clients that the message was sent to.
