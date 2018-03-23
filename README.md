@@ -5,6 +5,7 @@ ESP32 WebSocket
 ==================
 
 A component for WebSockets on ESP-IDF using lwip netconn. 
+For an example, see https://github.com/Molorius/ESP32-Examples. 
 
 To add to a project, type:
 `git submodule add https://github.com/Molorius/esp32-websocket.git components/websocket` 
