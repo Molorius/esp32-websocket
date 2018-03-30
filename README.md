@@ -82,8 +82,8 @@ messages can be sent, but new messages will not be received.
   * 1: successful stop
   * 0: server was not running before
 
-ws_server_add_client(struct netconn* conn, char* msg, uint16_t len, char* url, void *callback)
-----------------------------------------------------------------------------------------------
+int ws_server_add_client(struct netconn* conn, char* msg, uint16_t len, char* url, void *callback)
+--------------------------------------------------------------------------------------------------
 
 Adds a client to the WebSocket Server handler and performs the necessary handshake.
 
@@ -99,8 +99,8 @@ Adds a client to the WebSocket Server handler and performs the necessary handsha
   * -1: server full, or connection issue.
   * 0 or greater: connection number
 
-ws_server_add_client_protocol(struct netconn* conn, char* msg, uint16_t len, char* url, char* protocol, void *callback)
------------------------------------------------------------------------------------------------------------------------
+int ws_server_add_client_protocol(struct netconn* conn, char* msg, uint16_t len, char* url, char* protocol, void *callback)
+---------------------------------------------------------------------------------------------------------------------------
 
 Adds a client to the WebSocket Server handler and performs the necessary handshake. Will also send
 the specified protocol.
