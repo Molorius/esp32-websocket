@@ -119,13 +119,14 @@ int ws_server_stop() {
   return 1;
 }
 
-static bool prepare_response(char* buf,uint32_t buflen,char* handshake) {
+static bool prepare_response(char* buf,uint32_t buflen,char* handshake,char* protocol) {
   const char WS_HEADER[] = "Upgrade: websocket\r\n";
   const char WS_KEY[] = "Sec-WebSocket-Key: ";
   const char WS_RSP[] = "HTTP/1.1 101 Switching Protocols\r\n" \
                         "Upgrade: websocket\r\n" \
                         "Connection: Upgrade\r\n" \
-                        "Sec-WebSocket-Accept: %s\r\n\r\n";
+                        "Sec-WebSocket-Accept: %s\r\n" \
+                        "%s\r\n";
 
   char* key_start;
   char* key_end;
@@ -141,14 +142,23 @@ static bool prepare_response(char* buf,uint32_t buflen,char* handshake) {
 
   hashed_key = ws_hash_handshake(key_start,key_end-key_start);
   if(!hashed_key) return 0;
-  sprintf(handshake,WS_RSP,hashed_key);
+  if(protocol) {
+    char tmp[256];
+    sprintf(tmp,WS_RSP,hashed_key,"Sec-WebSocket-Protocol: %s\r\n");
+    sprintf(handshake,tmp,protocol);
+  }
+  else {
+    sprintf(handshake,WS_RSP,hashed_key,"");
+  }
+  free(hashed_key);
   return 1;
 }
 
-int ws_server_add_client(struct netconn* conn,
+int ws_server_add_client_protocol(struct netconn* conn,
                          char* msg,
                          uint16_t len,
                          char* url,
+                         char* protocol,
                          void (*callback)(uint8_t num,
                                           WEBSOCKET_TYPE_t type,
                                           char* msg,
@@ -156,7 +166,7 @@ int ws_server_add_client(struct netconn* conn,
   int ret;
   char handshake[256];
 
-  if(!prepare_response(msg,len,handshake)) {
+  if(!prepare_response(msg,len,handshake,protocol)) {
     netconn_close(conn);
     netconn_delete(conn);
     return -2;
@@ -193,6 +203,19 @@ int ws_server_len_url(char* url) {
   }
   xSemaphoreGive(xwebsocket_mutex);
   return ret;
+}
+
+int ws_server_add_client(struct netconn* conn,
+                         char* msg,
+                         uint16_t len,
+                         char* url,
+                         void (*callback)(uint8_t num,
+                                          WEBSOCKET_TYPE_t type,
+                                          char* msg,
+                                          uint64_t len)) {
+
+  return ws_server_add_client_protocol(conn,msg,len,url,NULL,callback);
+
 }
 
 int ws_server_len_all() {

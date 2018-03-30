@@ -33,6 +33,16 @@ int ws_server_add_client(struct netconn* conn,
                                           char* msg,
                                           uint64_t len));
 
+int ws_server_add_client_protocol(struct netconn* conn,
+                                  char* msg,
+                                  uint16_t len,
+                                  char* url,
+                                  char* protocol,
+                                  void (*callback)(uint8_t num,
+                                                   WEBSOCKET_TYPE_t type,
+                                                   char* msg,
+                                                   uint64_t len));
+
 int ws_server_len_url(char* url); // returns the number of connected clients to url
 int ws_server_len_all(); // returns the total number of connected clients
 

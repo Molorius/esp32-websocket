@@ -4,11 +4,11 @@ By Blake Felt - blake.w.felt@gmail.com
 ESP32 WebSocket
 ==================
 
-A component for WebSockets on ESP-IDF using lwip netconn. 
-For an example, see https://github.com/Molorius/ESP32-Examples. 
+A component for WebSockets on ESP-IDF using lwip netconn.
+For an example, see https://github.com/Molorius/ESP32-Examples.
 
 To add to a project, type:
-`git submodule add https://github.com/Molorius/esp32-websocket.git components/websocket` 
+`git submodule add https://github.com/Molorius/esp32-websocket.git components/websocket`
 into the base directory of your project.
 
 Some configuration options for the Server can be found in menuconfig in:
@@ -28,6 +28,7 @@ Table of Contents
   * [ws_server_start](#int-ws_server_start)
   * [ws_server_stop](#int-ws_server_stop)
   * [ws_server_add_client](#int-ws_server_add_clientstruct-netconn-connchar-msguint16_t-lenchar-urlvoid-callback)
+  * [ws_server_add_client](#int-ws_server_add_clientstruct-netconn-connchar-msguint16_t-lenchar-urlchar-protocolvoid-callback)
   * [ws_server_len_url](#int-ws_server_len_urlchar-url)
   * [ws_server_len_all](#int-ws_server_len_all)
   * [ws_server_remove_client](#int-ws_server_remove_clientint-num)
@@ -98,6 +99,25 @@ Adds a client to the WebSocket Server handler and performs the necessary handsha
   * -1: server full, or connection issue.
   * 0 or greater: connection number
 
+ws_server_add_client_protocol(struct netconn* conn, char* msg, uint16_t len, char* url, char* protocol, void *callback)
+-----------------------------------------------------------------------------------------------------------------------
+
+Adds a client to the WebSocket Server handler and performs the necessary handshake. Will also send
+the specified protocol.
+
+*Parameters*
+  * `conn`: the lwip netconn connection.
+  * `msg`: the entire incoming request message to join the server. Necessary for the handshake.
+  * `len`: the length of `msg`.
+  * `url`: the NULL-terminated url. Used to keep track of clients, not required.
+  * `protocol`: the NULL-terminated protocol. This will be sent to the client in the header.
+  * `callback`: the callback that is used to run WebSocket events. This must be with parameters(uint8_t num,WEBSOCKET_TYPE_t type,char* msg,uint64_t len) where "num" is the client number, "type" is the event type, "msg" is the incoming message, and "len" is the message length. The callback itself is optional.
+
+*Returns*
+  * -2: not enough information in `msg` to perform handshake.
+  * -1: server full, or connection issue.
+  * 0 or greater: connection number
+
 int ws_server_len_url(char* url)
 --------------------------------
 
@@ -112,7 +132,7 @@ Returns the number of clients connected to the specified URL.
 int ws_server_len_all()
 -----------------------
 
-*Returns* 
+*Returns*
   * The number of connected clients.
 
 int ws_server_remove_client(int num)
