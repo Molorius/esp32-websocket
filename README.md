@@ -28,7 +28,7 @@ Table of Contents
   * [ws_server_start](#int-ws_server_start)
   * [ws_server_stop](#int-ws_server_stop)
   * [ws_server_add_client](#int-ws_server_add_clientstruct-netconn-connchar-msguint16_t-lenchar-urlvoid-callback)
-  * [ws_server_add_client](#int-ws_server_add_clientstruct-netconn-connchar-msguint16_t-lenchar-urlchar-protocolvoid-callback)
+  * [ws_server_add_client_protocol](#int-ws_server_add_clientstruct-netconn-connchar-msguint16_t-lenchar-urlchar-protocolvoid-callback)
   * [ws_server_len_url](#int-ws_server_len_urlchar-url)
   * [ws_server_len_all](#int-ws_server_len_all)
   * [ws_server_remove_client](#int-ws_server_remove_clientint-num)
@@ -82,8 +82,8 @@ messages can be sent, but new messages will not be received.
   * 1: successful stop
   * 0: server was not running before
 
-int ws_server_add_client(struct netconn* conn, char* msg, uint16_t len, char* url, void *callback)
---------------------------------------------------------------------------------------------------
+int ws_server_add_client(struct netconn* conn,char* msg,uint16_t len,char* url,void *callback)
+----------------------------------------------------------------------------------------------
 
 Adds a client to the WebSocket Server handler and performs the necessary handshake.
 
@@ -99,8 +99,8 @@ Adds a client to the WebSocket Server handler and performs the necessary handsha
   * -1: server full, or connection issue.
   * 0 or greater: connection number
 
-int ws_server_add_client_protocol(struct netconn* conn, char* msg, uint16_t len, char* url, char* protocol, void *callback)
----------------------------------------------------------------------------------------------------------------------------
+int ws_server_add_client_protocol(struct netconn* conn,char* msg,uint16_t len,char* url,char* protocol,void *callback)
+----------------------------------------------------------------------------------------------------------------------
 
 Adds a client to the WebSocket Server handler and performs the necessary handshake. Will also send
 the specified protocol.
