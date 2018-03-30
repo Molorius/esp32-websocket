@@ -28,7 +28,7 @@ Table of Contents
   * [ws_server_start](#int-ws_server_start)
   * [ws_server_stop](#int-ws_server_stop)
   * [ws_server_add_client](#int-ws_server_add_clientstruct-netconn-connchar-msguint16_t-lenchar-urlvoid-callback)
-  * [ws_server_add_client_protocol](#int-ws_server_add_clientstruct-netconn-connchar-msguint16_t-lenchar-urlchar-protocolvoid-callback)
+  * [ws_server_add_client_protocol](#int-ws_server_add_client_protocolstruct-netconn-connchar-msguint16_t-lenchar-urlchar-protocolvoid-callback)
   * [ws_server_len_url](#int-ws_server_len_urlchar-url)
   * [ws_server_len_all](#int-ws_server_len_all)
   * [ws_server_remove_client](#int-ws_server_remove_clientint-num)
