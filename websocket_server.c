@@ -27,7 +27,11 @@ static void handle_read(uint8_t num) {
 
   header.received = 0;
   msg = ws_read(&clients[num],&header);
-  if(!header.received) return NULL;
+
+  if(!header.received) {
+    if(msg) free(msg);
+    return NULL;
+  }
 
   switch(clients[num].last_opcode) {
     case WEBSOCKET_OPCODE_CONT:

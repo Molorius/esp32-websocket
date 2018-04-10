@@ -18,6 +18,8 @@ This presently only has the WebSocket server code working, but client code will 
 
 The code only allows one WebSocket server at a time, but this merely handles all incoming reads. New connections are added externally, so this can be used to hold various WebSocket connections.
 
+While this can theoretically handle very large messages, hardware constraints (RAM) limits the size of messages. I highly recommend not using more than 5000 bytes per message, but no constraint is in place for this. 
+
 Any suggestions or fixes are gladly appreciated.
 
 Table of Contents

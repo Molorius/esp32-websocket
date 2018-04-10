@@ -18,6 +18,7 @@ ws_client_t ws_connect_client(struct netconn* conn,
   client.last_opcode = 0;
   client.contin = NULL;
   client.len = 0;
+  client.unfinished = 0;
   client.ccallback = ccallback;
   client.scallback = scallback;
   return client;
@@ -110,7 +111,15 @@ void ws_send(ws_client_t* client,WEBSOCKET_OPCODES_t opcode,char* msg,uint64_t l
     pos = 4;
   }
   if(header.param.bit.LEN == 127) {
-    memcpy(&out[2],&len,8);
+    //memcpy(&out[2],&len,8);
+    out[2] = (len >> 56) & 0xFF;
+    out[3] = (len >> 48) & 0xFF;
+    out[4] = (len >> 40) & 0xFF;
+    out[5] = (len >> 32) & 0xFF;
+    out[6] = (len >> 24) & 0xFF;
+    out[7] = (len >> 16) & 0xFF;
+    out[8] = (len >> 8)  & 0xFF;
+    out[9] = (len)       & 0xFF;
     pos = 10;
   }
 
@@ -135,10 +144,20 @@ char* ws_read(ws_client_t* client,ws_header_t* header) {
   char* append;
   err_t err;
   struct netbuf* inbuf;
+  struct netbuf* inbuf2;
   char* buf;
+  char* buf2;
   uint16_t len;
+  uint16_t len2;
   uint64_t pos;
   uint64_t cont_len;
+  uint64_t cont_pos;
+
+  // if we read from this previously (not cont frames), stop reading
+  if(client->unfinished) {
+    client->unfinished--;
+    return NULL;
+  }
 
   err = netconn_recv(client->conn,&inbuf);
   if(err != ERR_OK) return NULL;
@@ -155,11 +174,14 @@ char* ws_read(ws_client_t* client,ws_header_t* header) {
     header->length = header->param.bit.LEN;
   }
   else if(header->param.bit.LEN == 126) {
-    memcpy(&(header->length),&buf[2],2);
+    header->length = buf[2] << 8 | buf[3];
     pos = 4;
   }
   else { // LEN = 127
-    memcpy(&(header->length),&buf[2],8);
+    header->length = (uint64_t)buf[2] << 56 | (uint64_t)buf[3] << 48
+                   | (uint64_t)buf[4] << 40 | (uint64_t)buf[5] << 32
+                   | (uint64_t)buf[6] << 24 | (uint64_t)buf[7] << 16
+                   | (uint64_t)buf[8] << 8  | (uint64_t)buf[9];
     pos = 10;
   }
 
@@ -168,20 +190,38 @@ char* ws_read(ws_client_t* client,ws_header_t* header) {
     pos += 4;
   }
 
-  // don't read the whole message if there's an issue
-  if(header->length > (len-pos)) {
+  ret = malloc(header->length+1); // allocate memory, plus a byte
+  if(!ret) {
     netbuf_delete(inbuf);
-    free(buf);
+    header->received = 0;
     return NULL;
   }
 
-  ret = malloc(header->length+1); // allocate memory, plus a bit
-  if(!ret) {
-    netbuf_delete(inbuf);
-    free(buf);
-    return NULL;
+  cont_len = len-pos; // get the actual length
+  memcpy(ret,&buf[pos],header->length); // allocate the total memory
+  cont_pos = cont_len; // get the initial position
+  // netconn gives messages in pieces, so we need to get those (different than OPCODE_CONT)
+  while(cont_len < header->length) { // while the actual length is less than the header stated
+    err = netconn_recv(client->conn,&inbuf2);
+    if(err != ERR_OK) {
+      netbuf_delete(inbuf2);
+      free(ret);
+      client->unfinished = 0;
+      header->received = 0;
+      return NULL;
+    }
+    netbuf_data(inbuf2,(void**)&buf2, &len2);
+    memcpy(&ret[cont_pos],buf2,len2);
+    cont_pos += len2;
+    if(!buf2) {
+      client->unfinished = 0;
+      header->received = 0;
+    }
+    netbuf_delete(inbuf2);
+    client->unfinished++;
+    cont_len += len2;
   }
-  memcpy(ret,&buf[pos],header->length+1); // copy the message
+
   ret[header->length] = '\0'; // end string
   ws_encrypt_decrypt(ret,*header); // unencrypt, if necessary
 
@@ -199,7 +239,7 @@ char* ws_read(ws_client_t* client,ws_header_t* header) {
          free(append);
          free(ret);
          netbuf_delete(inbuf);
-         free(buf);
+         //free(buf);
          return NULL;
     }
     else if((header->param.bit.OPCODE==WEBSOCKET_OPCODE_BIN) || (header->param.bit.OPCODE==WEBSOCKET_OPCODE_TEXT)) {
@@ -213,18 +253,18 @@ char* ws_read(ws_client_t* client,ws_header_t* header) {
 
       free(ret);
       netbuf_delete(inbuf);
-      free(buf);
+      //free(buf);
       return NULL;
     }
     else { // there shouldn't be another FIN code....
       free(ret);
       netbuf_delete(inbuf);
-      free(buf);
+      //free(buf);
       return NULL;
     }
   }
   client->last_opcode = header->param.bit.OPCODE;
-  netbuf_delete(inbuf);
+  if(inbuf) netbuf_delete(inbuf);
   header->received = 1;
   return ret;
 }

@@ -7,8 +7,6 @@ extern "C" {
 
 #include "lwip/api.h"
 
-#define WEBSOCKET_MAX_LENGTH 10000
-
 // the different codes for the callbacks
 typedef enum {
   WEBSOCKET_CONNECT,
@@ -60,10 +58,11 @@ typedef struct {
   char* url;            // the associated url,  null terminated
   char* protocol;		// the associated protocol, null terminated
   bool ping;            // did we send a ping?
-  WEBSOCKET_OPCODES_t last_opcode; // the previous opcode, except a continuation frame
+  WEBSOCKET_OPCODES_t last_opcode; // the previous opcode
   char* contin;         // any continuation piece
   bool contin_text;     // is the continue a binary or text?
   uint64_t len;         // length of continuation
+  uint32_t unfinished;      // sometimes netconn doesn't read a full frame, treated similarly to a continuation frame
   void (*ccallback)(WEBSOCKET_TYPE_t type,char* msg,uint64_t len); // client callback
   void (*scallback)(uint8_t num,WEBSOCKET_TYPE_t type,char* msg,uint64_t len); // server callback
 } ws_client_t;
