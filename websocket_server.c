@@ -54,7 +54,7 @@ static void handle_read(uint8_t num) {
       break;
     case WEBSOCKET_OPCODE_CLOSE:
       clients[num].scallback(num,WEBSOCKET_DISCONNECT_EXTERNAL,NULL,0);
-      ws_disconnect_client(&clients[num]);
+      ws_disconnect_client(&clients[num], 0);
       break;
     default:
       break;
@@ -188,7 +188,7 @@ int ws_server_add_client_protocol(struct netconn* conn,
     clients[i] = ws_connect_client(conn,url,NULL,callback);
     if(!ws_is_connected(clients[i])) {
       callback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
-      ws_disconnect_client(&clients[i]);
+      ws_disconnect_client(&clients[i], 0);
       break;
     }
     ret = i;
@@ -238,7 +238,7 @@ int ws_server_remove_client(int num) {
   xSemaphoreTake(xwebsocket_mutex,portMAX_DELAY);
   if(ws_is_connected(clients[num])) {
     clients[num].scallback(num,WEBSOCKET_DISCONNECT_INTERNAL,NULL,0);
-    ws_disconnect_client(&clients[num]);
+    ws_disconnect_client(&clients[num], 0);
     ret = 1;
   }
   xSemaphoreGive(xwebsocket_mutex);
@@ -251,7 +251,7 @@ int ws_server_remove_clients(char* url) {
   for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
     if(ws_is_connected(clients[i]) && strcmp(url,clients[i].url)) {
       clients[i].scallback(i,WEBSOCKET_DISCONNECT_INTERNAL,NULL,0);
-      ws_disconnect_client(&clients[i]);
+      ws_disconnect_client(&clients[i], 0);
       ret += 1;
     }
   }
@@ -265,7 +265,7 @@ int ws_server_remove_all() {
   for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
     if(ws_is_connected(clients[i])) {
       clients[i].scallback(i,WEBSOCKET_DISCONNECT_INTERNAL,NULL,0);
-      ws_disconnect_client(&clients[i]);
+      ws_disconnect_client(&clients[i], 0);
       ret += 1;
     }
   }
@@ -306,7 +306,7 @@ int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len) {
     ret = 1;
     if(!ws_is_connected(clients[num])) {
       clients[num].scallback(num,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
-      ws_disconnect_client(&clients[num]);
+      ws_disconnect_client(&clients[num], 0);
       ret = 0;
     }
   }
@@ -321,7 +321,7 @@ int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) 
       if(ws_is_connected(clients[i])) ret += 1;
       else {
         clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
-        ws_disconnect_client(&clients[i]);
+        ws_disconnect_client(&clients[i], 0);
       }
     }
   }
@@ -336,7 +336,7 @@ int ws_server_send_text_all_from_callback(char* msg,uint64_t len) {
       if(ws_is_connected(clients[i])) ret += 1;
       else {
         clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
-        ws_disconnect_client(&clients[i]);
+        ws_disconnect_client(&clients[i], 0);
       }
     }
   }

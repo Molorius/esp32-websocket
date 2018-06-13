@@ -76,7 +76,7 @@ ws_client_t ws_connect_client(struct netconn* conn,
                               void (*ccallback)(WEBSOCKET_TYPE_t type,char* msg,uint64_t len),
                               void (*scallback)(uint8_t num,WEBSOCKET_TYPE_t type,char* msg,uint64_t len)
                              );
-void ws_disconnect_client(ws_client_t* client);
+void ws_disconnect_client(ws_client_t* client,bool mask);
 bool ws_is_connected(ws_client_t client); // returns 1 if connected, status updates after send/read/connect/disconnect
 void ws_send(ws_client_t* client,WEBSOCKET_OPCODES_t opcode,char* msg,uint64_t len,bool mask); // sends message. this function performs the masking
 char* ws_read(ws_client_t* client,ws_header_t* header); // unmasks and returns message. populates header.

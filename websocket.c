@@ -24,8 +24,8 @@ ws_client_t ws_connect_client(struct netconn* conn,
   return client;
 }
 
-void ws_disconnect_client(ws_client_t* client) {
-  ws_send(client,WEBSOCKET_OPCODE_CLOSE,NULL,0,1); // tell the client to close
+void ws_disconnect_client(ws_client_t* client,bool mask) {
+  ws_send(client,WEBSOCKET_OPCODE_CLOSE,NULL,0,mask); // tell the client to close
   if(client->conn) {
     client->conn->callback = NULL; // shut off the callback
     netconn_close(client->conn);
