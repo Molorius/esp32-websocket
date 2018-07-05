@@ -77,7 +77,7 @@ void ws_send(ws_client_t* client,WEBSOCKET_OPCODES_t opcode,char* msg,uint64_t l
   // populate LEN field
   pos = 2;
   header.length = len;
-  if(len<125) {
+  if(len<=125) {
     header.param.bit.LEN = len;
   }
   else if(len<65536) {
@@ -170,7 +170,7 @@ char* ws_read(ws_client_t* client,ws_header_t* header) {
 
   // get the message length
   pos = 2;
-  if(header->param.bit.LEN < 125) {
+  if(header->param.bit.LEN <= 125) {
     header->length = header->param.bit.LEN;
   }
   else if(header->param.bit.LEN == 126) {
