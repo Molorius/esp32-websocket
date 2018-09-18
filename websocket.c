@@ -211,6 +211,14 @@ char* ws_read(ws_client_t* client,ws_header_t* header) {
       return NULL;
     }
     netbuf_data(inbuf2,(void**)&buf2, &len2);
+    // Prevent catastrophic failure due to memory leakage
+    if(cont_len + len2 > header->length) {
+      netbuf_delete(inbuf2);
+      free(ret);
+      client->unfinished = 0;
+      header->received = 0;
+      return NULL;
+    }
     memcpy(&ret[cont_pos],buf2,len2);
     cont_pos += len2;
     if(!buf2) {
