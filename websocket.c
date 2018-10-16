@@ -62,12 +62,13 @@ static void ws_encrypt_decrypt(char* msg,ws_header_t header) {
   }
 }
 
-void ws_send(ws_client_t* client,WEBSOCKET_OPCODES_t opcode,char* msg,uint64_t len,bool mask) {
+int ws_send(ws_client_t* client,WEBSOCKET_OPCODES_t opcode,char* msg,uint64_t len,bool mask) {
   char* out;
   char* encrypt;
   uint64_t pos;
   uint64_t true_len;
   ws_header_t header;
+  int ret;
 
   header.param.pos.ZERO = 0; // reset the whole header
   header.param.pos.ONE  = 0;
@@ -135,8 +136,9 @@ void ws_send(ws_client_t* client,WEBSOCKET_OPCODES_t opcode,char* msg,uint64_t l
     memcpy(&out[pos],msg,len);
   }
 
-  netconn_write(client->conn,out,true_len,NETCONN_COPY); // finally! send it.
+  ret = netconn_write(client->conn,out,true_len,NETCONN_COPY); // finally! send it.
   free(out); // free the entire message
+  return ret;
 }
 
 char* ws_read(ws_client_t* client,ws_header_t* header) {

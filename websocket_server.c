@@ -301,10 +301,11 @@ int ws_server_send_text_all(char* msg,uint64_t len) {
 
 int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len) {
   int ret = 0;
+  int err;
   if(ws_is_connected(clients[num])) {
-    ws_send(&clients[num],WEBSOCKET_OPCODE_TEXT,msg,len,0);
+    err = ws_send(&clients[num],WEBSOCKET_OPCODE_TEXT,msg,len,0);
     ret = 1;
-    if(!ws_is_connected(clients[num])) {
+    if(err) {
       clients[num].scallback(num,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
       ws_disconnect_client(&clients[num], 0);
       ret = 0;
@@ -315,10 +316,11 @@ int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len) {
 
 int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) {
   int ret = 0;
+  int err;
   for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
     if(ws_is_connected(clients[i]) && strcmp(clients[i].url,url)) {
-      ws_send(&clients[i],WEBSOCKET_OPCODE_TEXT,msg,len,0);
-      if(ws_is_connected(clients[i])) ret += 1;
+      err = ws_send(&clients[i],WEBSOCKET_OPCODE_TEXT,msg,len,0);
+      if(!err) ret += 1;
       else {
         clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
         ws_disconnect_client(&clients[i], 0);
@@ -330,10 +332,11 @@ int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) 
 
 int ws_server_send_text_all_from_callback(char* msg,uint64_t len) {
   int ret = 0;
+  int err;
   for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
     if(ws_is_connected(clients[i])) {
-      ws_send(&clients[i],WEBSOCKET_OPCODE_TEXT,msg,len,0);
-      if(ws_is_connected(clients[i])) ret += 1;
+      err = ws_send(&clients[i],WEBSOCKET_OPCODE_TEXT,msg,len,0);
+      if(!err) ret += 1;
       else {
         clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
         ws_disconnect_client(&clients[i], 0);
