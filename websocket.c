@@ -44,7 +44,7 @@ void ws_disconnect_client(ws_client_t* client,bool mask) {
 }
 
 bool ws_is_connected(ws_client_t client) {
-  if((client.conn) && (client.conn->pcb.tcp->state == ESTABLISHED))
+  if(client.conn)
     return 1;
   return 0;
 }
