@@ -202,8 +202,8 @@ int ws_server_add_client_protocol(struct netconn* conn,
 
   for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
     if(clients[i].conn) continue;
-    callback(i,WEBSOCKET_CONNECT,NULL,0);
     clients[i] = ws_connect_client(conn,url,NULL,callback);
+    callback(i,WEBSOCKET_CONNECT,NULL,0);
     if(!ws_is_connected(clients[i])) {
       callback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
       ws_disconnect_client(&clients[i], 0);
