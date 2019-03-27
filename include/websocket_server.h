@@ -26,12 +26,12 @@ extern "C" {
 
 #include "websocket.h"
 
-#define WEBSOCKET_SERVER_MAX_CLIENTS CONFIG_WEBSOCKET_SERVER_MAX_CLIENTS
-#define WEBSOCKET_SERVER_QUEUE_SIZE CONFIG_WEBSOCKET_SERVER_QUEUE_SIZE
-#define WEBSOCKET_SERVER_QUEUE_TIMEOUT CONFIG_WEBSOCKET_SERVER_QUEUE_TIMEOUT
-#define WEBSOCKET_SERVER_TASK_STACK_DEPTH CONFIG_WEBSOCKET_SERVER_TASK_STACK_DEPTH
-#define WEBSOCKET_SERVER_TASK_PRIORITY CONFIG_WEBSOCKET_SERVER_TASK_PRIORITY
-#define WEBSOCKET_SERVER_PINNED CONFIG_WEBSOCKET_SERVER_PINNED
+#define WEBSOCKET_SERVER_MAX_CLIENTS 20
+#define WEBSOCKET_SERVER_QUEUE_SIZE 10
+#define WEBSOCKET_SERVER_QUEUE_TIMEOUT 30
+#define WEBSOCKET_SERVER_TASK_STACK_DEPTH 6000
+#define WEBSOCKET_SERVER_TASK_PRIORITY 5
+#define WEBSOCKET_SERVER_PINNED 0
 #if WEBSOCKET_SERVER_PINNED
 #define WEBSOCKET_SERVER_PINNED_CORE CONFIG_WEBSOCKET_SERVER_PINNED_CORE
 #endif
@@ -82,6 +82,8 @@ int ws_server_send_bin_all(char* msg,uint64_t len);
 int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len); // send text to client with the set number
 int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len); // sends text to all clients with the set number
 int ws_server_send_text_all_from_callback(char* msg,uint64_t len); // sends text to all clients
+
+int ws_server_send_bin_all_from_callback(char* msg,uint64_t len);
 
 int ws_server_ping(); // sends a ping to all connected clients
 
