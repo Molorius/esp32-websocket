@@ -48,7 +48,7 @@ static void handle_read(uint8_t num) {
 
   if(!header.received) {
     if(msg) free(msg);
-    return NULL;
+    return;
   }
 
   switch(clients[num].last_opcode) {
