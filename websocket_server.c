@@ -335,8 +335,13 @@ int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len) {
 int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) {
   int ret = 0;
   int err;
+
+  if(url == NULL) {
+    return ret;
+  }
+
   for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
-    if(ws_is_connected(clients[i]) && strcmp(clients[i].url,url)) {
+    if(clients[i].url != NULL && ws_is_connected(clients[i]) && !strcmp(clients[i].url,url)) {
       err = ws_send(&clients[i],WEBSOCKET_OPCODE_TEXT,msg,len,0);
       if(!err) ret += 1;
       else {
