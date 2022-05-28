@@ -314,14 +314,35 @@ int ws_server_send_text_all(char* msg,uint64_t len) {
   return ret;
 }
 
+int ws_server_send_bin_client(int num,char* msg,uint64_t len) {
+  xSemaphoreTake(xwebsocket_mutex,portMAX_DELAY);
+  int ret = ws_server_send_bin_client_from_callback(num,msg,len);
+  xSemaphoreGive(xwebsocket_mutex);
+  return ret;
+}
+
+int ws_server_send_bin_clients(char* url,char* msg,uint64_t len) {
+  xSemaphoreTake(xwebsocket_mutex,portMAX_DELAY);
+  int ret = ws_server_send_bin_clients_from_callback(url,msg,len);
+  xSemaphoreGive(xwebsocket_mutex);
+  return ret;
+}
+
+int ws_server_send_bin_all(char* msg,uint64_t len) {
+  xSemaphoreTake(xwebsocket_mutex,portMAX_DELAY);
+  int ret = ws_server_send_bin_all_from_callback(msg, len);
+  xSemaphoreGive(xwebsocket_mutex);
+  return ret;
+}
+
 // the following functions should be used inside of the callback. The regular versions
 // grab the mutex, but it is already grabbed from inside the callback so it will hang.
 
-int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len) {
+static int _send_client_from_callback(WEBSOCKET_OPCODES_t opcode,int num,char* msg,uint64_t len) {
   int ret = 0;
   int err;
   if(ws_is_connected(clients[num])) {
-    err = ws_send(&clients[num],WEBSOCKET_OPCODE_TEXT,msg,len,0);
+    err = ws_send(&clients[num],opcode,msg,len,0);
     ret = 1;
     if(err) {
       clients[num].scallback(num,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
@@ -332,7 +353,7 @@ int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len) {
   return ret;
 }
 
-int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) {
+static int _send_clients_from_callback(WEBSOCKET_OPCODES_t opcode,char* url,char* msg,uint64_t len) {
   int ret = 0;
   int err;
 
@@ -342,7 +363,7 @@ int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) 
 
   for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
     if(clients[i].url != NULL && ws_is_connected(clients[i]) && !strcmp(clients[i].url,url)) {
-      err = ws_send(&clients[i],WEBSOCKET_OPCODE_TEXT,msg,len,0);
+      err = ws_send(&clients[i],opcode,msg,len,0);
       if(!err) ret += 1;
       else {
         clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
@@ -351,36 +372,46 @@ int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) 
     }
   }
   return ret;
+}
+
+static int _send_all_from_callback(WEBSOCKET_OPCODES_t opcode,char* msg,uint64_t len) {
+  int ret = 0;
+  int err;
+  for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
+    if(ws_is_connected(clients[i])) {
+      err = ws_send(&clients[i],opcode,msg,len,0);
+      if(!err) ret += 1;
+      else {
+        clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
+        ws_disconnect_client(&clients[i], 0);
+      }
+    }
+  }
+  return ret;
+}
+
+// text functions
+
+int ws_server_send_text_client_from_callback(int num,char* msg,uint64_t len) {
+  return _send_client_from_callback(WEBSOCKET_OPCODE_TEXT,num,msg,len);
+}
+
+int ws_server_send_text_clients_from_callback(char* url,char* msg,uint64_t len) {
+  return _send_clients_from_callback(WEBSOCKET_OPCODE_TEXT,url,msg,len);
 }
 
 int ws_server_send_text_all_from_callback(char* msg,uint64_t len) {
-  int ret = 0;
-  int err;
-  for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
-    if(ws_is_connected(clients[i])) {
-      err = ws_send(&clients[i],WEBSOCKET_OPCODE_TEXT,msg,len,0);
-      if(!err) ret += 1;
-      else {
-        clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
-        ws_disconnect_client(&clients[i], 0);
-      }
-    }
-  }
-  return ret;
+  return _send_all_from_callback(WEBSOCKET_OPCODE_TEXT,msg,len);
 }
 
+// binary functions
+
+int ws_server_send_bin_client_from_callback(int num,char* msg,uint64_t len) {
+  return _send_client_from_callback(WEBSOCKET_OPCODE_BIN,num,msg,len);
+}
+int ws_server_send_bin_clients_from_callback(char* url,char* msg,uint64_t len) {
+  return _send_clients_from_callback(WEBSOCKET_OPCODE_BIN,url,msg,len);
+}
 int ws_server_send_bin_all_from_callback(char* msg,uint64_t len) {
-  int ret = 0;
-  int err;
-  for(int i=0;i<WEBSOCKET_SERVER_MAX_CLIENTS;i++) {
-    if(ws_is_connected(clients[i])) {
-      err = ws_send(&clients[i],WEBSOCKET_OPCODE_BIN,msg,len,0);
-      if(!err) ret += 1;
-      else {
-        clients[i].scallback(i,WEBSOCKET_DISCONNECT_ERROR,NULL,0);
-        ws_disconnect_client(&clients[i], 0);
-      }
-    }
-  }
-  return ret;
+  return _send_all_from_callback(WEBSOCKET_OPCODE_BIN,msg,len);
 }

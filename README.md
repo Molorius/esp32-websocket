@@ -42,6 +42,8 @@ Table of Contents
   * [ws_server_send_text_client_from_callback](#int-ws_server_send_text_client_from_callbackint-numchar-msguint64_t-len)
   * [ws_server_send_text_clients_from_callback](#int-ws_server_send_text_clients_from_callbackchar-urlchar-msguint64_t-len)
   * [ws_server_send_text_all_from_callback](#int-ws_server_send_text_all_from_callbackchar-msguint64_t-len)
+  * [ws_server_send_bin_client_from_callback](#int-ws_server_send_bin_client_from_callbackint-numchar-msguint64_t-len)
+  * [ws_server_send_bin_clients_from_callback](#int-ws_server_send_bin_clients_from_callbackchar-urlchar-msguint64_t-len)
   * [ws_server_send_bin_all_from_callback](#int-ws_server_send_bin_all_from_callbackchar-msguint64_t-len)
 
 Enumerations
@@ -243,6 +245,33 @@ Sends the message to all connected clients. Only use this inside the callback fu
 *Parameters*
   * `msg`: the desired message
   * `len`: the length of the message
+
+*Returns*
+  * The number of clients that the message was sent to.
+
+  int ws_server_send_bin_client_from_callback(int num,char* msg,uint64_t len)
+----------------------------------------------------------------------------
+
+Sends the desired binary message to the client. Only use this inside the callback function.
+
+*Parameters*
+  * `num`: the client's number.
+  * `msg`: the desired message.
+  * `len`: the length of the message.
+
+*Returns*
+  * 0: message not sent properly
+  * 1: message sent
+
+int ws_server_send_bin_clients_from_callback(char* url,char* msg,uint64_t len)
+-------------------------------------------------------------------------------
+
+Sends the binary message to clients connected to the desired URL. Only use this inside the callback function.
+
+*Parameters*
+  * `url`: the NULL-terminated URL.
+  * `msg`: the desired message.
+  * `len`: the length of the message.
 
 *Returns*
   * The number of clients that the message was sent to.
