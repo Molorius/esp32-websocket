@@ -42,6 +42,7 @@ Table of Contents
   * [ws_server_send_text_client_from_callback](#int-ws_server_send_text_client_from_callbackint-numchar-msguint64_t-len)
   * [ws_server_send_text_clients_from_callback](#int-ws_server_send_text_clients_from_callbackchar-urlchar-msguint64_t-len)
   * [ws_server_send_text_all_from_callback](#int-ws_server_send_text_all_from_callbackchar-msguint64_t-len)
+  * [ws_server_send_bin_all_from_callback](#int-ws_server_send_bin_all_from_callbackchar-msguint64_t-len)
 
 Enumerations
 ============
@@ -238,6 +239,18 @@ int ws_server_send_text_all_from_callback(char* msg,uint64_t len)
 -----------------------------------------------------------------
 
 Sends the message to all connected clients. Only use this inside the callback function.
+
+*Parameters*
+  * `msg`: the desired message
+  * `len`: the length of the message
+
+*Returns*
+  * The number of clients that the message was sent to.
+
+int ws_server_send_bin_all_from_callback(char* msg,uint64_t len)
+-----------------------------------------------------------------
+
+Sends a binary message to all connected clients. Only use this inside the callback function.
 
 *Parameters*
   * `msg`: the desired message
