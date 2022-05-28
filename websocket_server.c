@@ -154,12 +154,12 @@ static bool prepare_response(char* buf,uint32_t buflen,char* handshake,char* pro
   char* key_end;
   char* hashed_key;
 
-  if(!strstr(buf,WS_HEADER)) return 0;
+  if(!strcasestr(buf,WS_HEADER)) return 0;
   if(!buflen) return 0;
-  key_start = strstr(buf,WS_KEY);
+  key_start = strcasestr(buf,WS_KEY);
   if(!key_start) return 0;
   key_start += 19;
-  key_end = strstr(key_start,"\r\n");
+  key_end = strcasestr(key_start,"\r\n");
   if(!key_end) return 0;
 
   hashed_key = ws_hash_handshake(key_start,key_end-key_start);
