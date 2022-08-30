@@ -138,6 +138,7 @@ int ws_server_start() {
 int ws_server_stop() {
   if(!xtask) return 0;
   vTaskDelete(xtask);
+  xtask = NULL;
   return 1;
 }
 
